@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Political Preparedness</string>
+    <string name="text_button_upcoming">Upcoming Elections</string>
+    <string name="text_button_find">Find my Representatives</string>
+    <string name="desc_launch_icon">Launch logo. Picture of a person voting</string>
+    <string name="text_header_upcoming">Upcoming Elections</string>
+    <string name="text_header_saved">Saved Elections</string>
+    <string name="text_button_follow">Follow Election</string>
+    <string name="text_button_unfollow">Unfollow Election</string>
+
+</resources>
