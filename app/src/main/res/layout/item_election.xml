@@ -11,7 +11,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <TextView
@@ -19,6 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/roboto"
+            android:text="@{election.name}"
             android:textSize="16sp"
             android:textStyle="bold"
             tools:text="VIP Test Election" />
@@ -28,6 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/roboto"
+            android:text="@{election.electionDay}"
             android:textSize="14sp"
             tools:text="Sun Jun 06 2023" />
     </LinearLayout>
