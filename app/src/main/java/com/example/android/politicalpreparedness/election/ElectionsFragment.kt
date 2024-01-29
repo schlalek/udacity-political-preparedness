@@ -5,12 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.android.politicalpreparedness.databinding.FragmentElectionBinding
 import com.example.android.politicalpreparedness.election.adapter.ElectionListAdapter
 import com.example.android.politicalpreparedness.election.adapter.ElectionListener
-import com.example.android.politicalpreparedness.network.models.Election
 
 class ElectionsFragment : Fragment() {
 
@@ -31,7 +29,7 @@ class ElectionsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     )
-            : View? {
+            : View {
         binding = FragmentElectionBinding.inflate(inflater)
         binding.lifecycleOwner = this
 
@@ -45,21 +43,21 @@ class ElectionsFragment : Fragment() {
         binding.recyclerSaved.adapter = electionSavedAdapter
 
         // TODO: Populate recycler adapters
-        return null
+        return binding.root
     }
 
     // TODO: Refresh adapters when fragment loads
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel.upcomingElections.observe(viewLifecycleOwner, Observer<List<Election>> {
+        viewModel.upcomingElections.observe(viewLifecycleOwner) {
             it.apply {
                 electionUpcomingAdapter.submitList(this)
             }
-        })
-        viewModel.savedElections.observe(viewLifecycleOwner, Observer<List<Election>> {
+        }
+        viewModel.savedElections.observe(viewLifecycleOwner) {
             it.apply {
                 electionSavedAdapter.submitList(this)
             }
-        })
+        }
         super.onViewCreated(view, savedInstanceState)
     }
 }
