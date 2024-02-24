@@ -9,4 +9,19 @@
     <string name="text_button_follow">Follow Election</string>
     <string name="text_button_unfollow">Unfollow Election</string>
 
+    <string name="text_header_election_info">Election Information</string>
+    <string name="text_polling_locations">Polling Locations</string>
+    <string name="text_ballot_info">Ballot Information</string>
+    <string name="text_correspondence_address">Correspondence Address</string>
+
+    <string name="text_search_header">Representative Search</string>
+    <string name="hint_address1">Address Line 1</string>
+    <string name="hint_address2">Address Line 2</string>
+    <string name="hint_address_city">City</string>
+    <string name="hint_address_zip">Zip</string>
+
+    <string name="text_button_find_representative">Find my Representative</string>
+    <string name="text_button_use_location">Use my location</string>
+    <string name="text_header_my_representative">My Representatives</string>
+
 </resources>

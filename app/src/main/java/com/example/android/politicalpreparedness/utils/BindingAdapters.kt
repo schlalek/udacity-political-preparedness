@@ -1,5 +1,7 @@
 package com.example.android.politicalpreparedness.utils
 
+import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.net.toUri
@@ -32,4 +34,19 @@ fun setText(view: TextView, date: Date?) {
         val localizedDate: String = df.format(date)
         view.text = localizedDate
     }
+}
+
+@BindingAdapter("textCondition", "textTrue", "textFalse")
+fun toggleText(view: Button, textCondition: Boolean, textTrue: String, textFalse: String) {
+    view.text = (if (textCondition) textTrue else textFalse)
+}
+
+@BindingAdapter("visibleIf")
+fun setVisibility(view: View, visibleIf: Boolean) {
+    view.visibility = if (visibleIf) View.VISIBLE else View.GONE
+}
+
+@BindingAdapter("hideIfEmpty")
+fun setVisibility(view: View, hideIfEmpty: String?) {
+    view.visibility = if (hideIfEmpty.isNullOrEmpty()) View.GONE else View.VISIBLE
 }

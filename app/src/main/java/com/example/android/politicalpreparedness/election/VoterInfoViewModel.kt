@@ -1,21 +1,84 @@
 package com.example.android.politicalpreparedness.election
 
-import androidx.lifecycle.ViewModel
-import com.example.android.politicalpreparedness.database.ElectionDao
+import android.app.Application
+import android.net.Uri
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import com.example.android.politicalpreparedness.database.ElectionDatabase
+import com.example.android.politicalpreparedness.network.CivicsApi
+import com.example.android.politicalpreparedness.network.models.Division
+import com.example.android.politicalpreparedness.network.models.VoterInfoResponse
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
-class VoterInfoViewModel(private val dataSource: ElectionDao) : ViewModel() {
+class VoterInfoViewModel(application: Application) : AndroidViewModel(application) {
 
-    //TODO: Add live data to hold voter info
+    private val database = ElectionDatabase.getInstance(application)
 
-    //TODO: Add var and methods to populate voter info
+    private val _voterInfo = MutableLiveData<VoterInfoResponse>()
+    val voterInfo: LiveData<VoterInfoResponse>
+        get() = _voterInfo
 
-    //TODO: Add var and methods to support loading URLs
+    private val _isSaved = MutableLiveData<Boolean>(false)
+    val isSaved: LiveData<Boolean>
+        get() = _isSaved
 
-    //TODO: Add var and methods to save and remove elections to local database
-    //TODO: cont'd -- Populate initial state of save button to reflect proper action based on election saved status
+    private val _urlToOpen = MutableLiveData<Uri?>(null)
+    val urlToOpen: LiveData<Uri?>
+        get() = _urlToOpen
 
-    /**
-     * Hint: The saved state can be accomplished in multiple ways. It is directly related to how elections are saved/removed from the database.
-     */
+    fun onUrlOpened() {
+        _urlToOpen.value = null
+    }
+
+    fun openPollingLocationsURL() {
+        val url = voterInfo.value?.pollingLocations
+        _urlToOpen.value = Uri.parse(url)
+    }
+
+    fun openBallotInfoURL() {
+        val url = _voterInfo.value?.state?.get(0)?.electionAdministrationBody?.ballotInfoUrl
+        _urlToOpen.value = Uri.parse(url)
+    }
+
+    private fun saveElection() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (_voterInfo.value != null) {
+                database.electionDao.InsertAll(_voterInfo.value!!.election)
+                _isSaved.postValue(true)
+            }
+        }
+    }
+
+    private fun removeElection() {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (_voterInfo.value != null) {
+                database.electionDao.deleteElections(_voterInfo.value!!.election)
+                _isSaved.postValue(false)
+            }
+        }
+    }
+
+    fun followUnfollowButtonClicked() {
+        if (_isSaved.value == true) removeElection() else saveElection()
+    }
+
+    fun getVoterInfo(electionId: Int, division: Division) {
+        viewModelScope.launch {
+            var address = division.country
+            if (division.state.isNotEmpty()) {
+                address += " - " + division.state
+            }
+            _voterInfo.value = CivicsApi.retrofitService.getVoterInfo(address, electionId)
+
+            val election = database.electionDao.getElectionDirect(electionId)
+            _isSaved.value = election != null
+            Timber.i("Result from database with ID $electionId: ${election?.toString()}")
+        }
+
+    }
 
 }
