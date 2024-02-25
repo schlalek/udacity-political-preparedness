@@ -37,7 +37,6 @@ class ElectionsFragment : Fragment() {
         binding.viewModel = viewModel
 
 
-        // TODO: Link elections to voter info
         viewModel.navigateToVoterInfo.observe(viewLifecycleOwner) {
             it?.let {
                 findNavController().navigate(
@@ -49,15 +48,12 @@ class ElectionsFragment : Fragment() {
             }
         }
 
-        // TODO: Initiate recycler adapters
         binding.recyclerUpcoming.adapter = electionUpcomingAdapter
         binding.recyclerSaved.adapter = electionSavedAdapter
 
-        // TODO: Populate recycler adapters
         return binding.root
     }
 
-    // TODO: Refresh adapters when fragment loads
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewModel.upcomingElections.observe(viewLifecycleOwner) {
             it.apply {

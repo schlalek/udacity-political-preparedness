@@ -22,7 +22,7 @@ fun fetchImage(view: ImageView, src: String?) {
     src?.let {
         val uri = src.toUri().buildUpon().scheme("https").build()
         Glide.with(view.context)
-            .load(view)
+            .load(uri)
             .apply(
                 RequestOptions().error(R.drawable.ic_profile)
                     .placeholder(R.drawable.ic_profile)
@@ -32,7 +32,7 @@ fun fetchImage(view: ImageView, src: String?) {
 }
 
 @BindingAdapter("showIfTrue")
-fun changeVisibility(view: View, condition: Boolean?) {
+fun changeVisibility(view: ImageView, condition: Boolean?) {
     if (condition == null) {
         return
     }

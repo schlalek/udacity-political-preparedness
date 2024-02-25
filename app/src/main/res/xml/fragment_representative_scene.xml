@@ -7,31 +7,28 @@
         app:constraintSetStart="@+id/start">
         <OnSwipe
             app:dragDirection="dragUp"
-            app:touchAnchorId="@+id/representatives_list"
+            app:touchAnchorId="@+id/recycler_representatives"
             app:touchAnchorSide="top" />
     </Transition>
 
-
     <ConstraintSet android:id="@+id/start">
         <Constraint
-            android:id="@+id/search_form"
+            android:id="@+id/input_form"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/end">
         <Constraint
-            android:id="@+id/search_form"
+            android:id="@+id/input_form"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
-
     </ConstraintSet>
 </MotionScene>

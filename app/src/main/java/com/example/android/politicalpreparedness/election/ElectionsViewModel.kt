@@ -36,7 +36,6 @@ class ElectionsViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    //TODO: Create functions to navigate to saved or upcoming election voter info
     fun onElectionClicked(it: Election) {
         _navigateToVoterInfo.value = it
     }
