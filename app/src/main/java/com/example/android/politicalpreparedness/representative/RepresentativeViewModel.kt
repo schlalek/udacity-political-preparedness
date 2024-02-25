@@ -1,32 +1,62 @@
 package com.example.android.politicalpreparedness.representative
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.android.politicalpreparedness.PoliticalApp
+import com.example.android.politicalpreparedness.R
+import com.example.android.politicalpreparedness.network.CivicsApi
 import com.example.android.politicalpreparedness.network.models.Address
 import com.example.android.politicalpreparedness.representative.model.Representative
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
-class RepresentativeViewModel : ViewModel() {
+class RepresentativeViewModel(application: Application) : AndroidViewModel(application) {
 
-    //TODO: Establish live data for representatives and address
     var address = MutableLiveData<Address>()
 
-    val respresentatives: MutableLiveData<List<Representative>> = MutableLiveData()
+    private val _representatives: MutableLiveData<List<Representative>> = MutableLiveData()
+    val representatives: LiveData<List<Representative>>
+        get() = _representatives
 
-    //TODO: Create function to fetch representatives from API from a provided address
+    private val _showToast: MutableLiveData<String?> = MutableLiveData()
+    val showToast: LiveData<String?>
+        get() = _showToast
 
-    /**
-     *  The following code will prove helpful in constructing a representative from the API. This code combines the two nodes of the RepresentativeResponse into a single official :
+    fun onToastShown() {
+        _showToast.value = null
+    }
 
-    val (offices, officials) = getRepresentativesDeferred.await()
-    _representatives.value = offices.flatMap { office -> office.getRepresentatives(officials) }
+    private val _showLoading: MutableLiveData<Boolean> = MutableLiveData(false)
+    val showLoading: LiveData<Boolean>
+        get() = _showLoading
 
-    Note: getRepresentatives in the above code represents the method used to fetch data from the API
-    Note: _representatives in the above code represents the established mutable live data housing representatives
+    private fun checkIfAddressIsValid(): Boolean {
+        if (address.value == null) return false
 
-     */
+        return !(address.value!!.line1.isBlank() || address.value!!.line2.isNullOrBlank() || address.value!!.city.isBlank() || address.value!!.zip.isBlank())
 
-    //TODO: Create function get address from geo location
+    }
 
-    //TODO: Create function to get address from individual fields
+    fun searchRepresentatives() {
+        Timber.v("search Representatives called")
+        if (!checkIfAddressIsValid()) {
+            Timber.v("entered address is invalid")
+            _showToast.value = getApplication<PoliticalApp>().getString(R.string.error_in_address)
+            return
+        }
+        viewModelScope.launch {
+            _showLoading.value = true
+            Timber.v("start getting values from API")
+            val (offices, officials) = CivicsApi.retrofitService.getRepresentatives(address.value!!.toFormattedString())
+            _representatives.value =
+                offices.flatMap { office -> office.getRepresentatives(officials) }
+            Timber.v("api call done")
+            Timber.v("received representatives: ${_representatives.value!!.size}")
+            _showLoading.value = false
+        }
+    }
 
 }

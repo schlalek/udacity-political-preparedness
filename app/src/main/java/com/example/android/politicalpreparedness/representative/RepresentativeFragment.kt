@@ -1,6 +1,9 @@
 package com.example.android.politicalpreparedness.representative
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
@@ -8,19 +11,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.ArrayAdapter
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.android.politicalpreparedness.R
 import com.example.android.politicalpreparedness.databinding.FragmentRepresentativeBinding
 import com.example.android.politicalpreparedness.network.models.Address
+import com.example.android.politicalpreparedness.representative.adapter.RepresentativeListAdapter
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import timber.log.Timber
 import java.util.Locale
 
 class DetailFragment : Fragment() {
 
-    companion object {
-        //TODO: Add Constant for Location request
-    }
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private val viewModel: RepresentativeViewModel by lazy {
         ViewModelProvider(this)[RepresentativeViewModel::class.java]
@@ -28,7 +36,7 @@ class DetailFragment : Fragment() {
 
     private lateinit var binding: FragmentRepresentativeBinding
 
-    //TODO: Declare ViewModel
+    private val respresentativeAdapter = RepresentativeListAdapter()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,59 +44,133 @@ class DetailFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        //TODO: Establish bindings
         binding = FragmentRepresentativeBinding.inflate(inflater)
         binding.lifecycleOwner = this
 
         binding.viewModel = viewModel
 
-        //TODO: Define and assign Representative adapter
+        binding.recyclerRepresentatives.adapter = respresentativeAdapter
 
-        //TODO: Populate Representative adapter
+        viewModel.showToast.observe(viewLifecycleOwner)
+        {
+            it?.let {
+                Toast.makeText(
+                    requireContext(),
+                    R.string.error_in_address,
+                    Toast.LENGTH_SHORT
+                ).show()
+                viewModel.onToastShown()
+            }
+        }
 
-        //TODO: Establish button listeners for field and location search
+        binding.buttonLocation.setOnClickListener {
+            Timber.i("Use Location button clicked")
+            getLocation()
+        }
 
-        populateSpinner()
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
         return binding.root
     }
 
-    private fun populateSpinner() {
-        val spinner = binding.state
-// Create an ArrayAdapter using the string array and a default spinner layout.
-        ArrayAdapter.createFromResource(
-            requireContext(),
-            R.array.states,
-            android.R.layout.simple_spinner_item
-        ).also { adapter ->
-            // Specify the layout to use when the list of choices appears.
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            // Apply the adapter to the spinner.
-            spinner.adapter = adapter
+    val locationPermissionRequest = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        when {
+            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
+                // Precise location access granted.
+            }
+
+            permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+                // Only approximate location access granted.
+            }
+
+            else -> {
+                // No location access granted.
+            }
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        //TODO: Handle location permission result to get location on permission granted
-    }
 
-    private fun checkLocationPermissions(): Boolean {
-        return true//TODO: Request Location permissions
-        isPermissionGranted()
+    private fun checkAndRequestLocationPermissions(): Boolean {
+        when {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                // You can use the API that requires the permission.
+                return true
+            }
+
+            shouldShowRequestPermissionRationale(
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) -> {
+                // In an educational UI, explain to the user why your app requires this
+                // permission for a specific feature to behave as expected, and what
+                // features are disabled if it's declined. In this UI, include a
+                // "cancel" or "no thanks" button that lets the user continue
+                // using your app without granting the permission.
+                AlertDialog.Builder(requireActivity())
+                    .setTitle(R.string.permission_title)
+                    .setMessage(R.string.permission_description)
+                    .setPositiveButton("OK") { _, _ ->
+                        locationPermissionRequest.launch(
+                            arrayOf(
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION
+                            )
+                        )
+                    }
+                    .setCancelable(true)
+                    .create()
+                    .show()
+                return false
+            }
+
+            else -> {
+                // You can directly ask for the permission.
+                // The registered ActivityResultCallback gets the result of this request.
+                locationPermissionRequest.launch(
+                    arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+                )
+                return false
+            }
+        }
     }
 
     private fun isPermissionGranted(): Boolean {
-        return true
-        //TODO: Check if permission is already granted and return (true = granted, false = denied/other)
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
+    @SuppressLint("MissingPermission")
     private fun getLocation() {
-        //TODO: Get location from LocationServices
-        //TODO: The geoCodeLocation method is a helper function to change the lat/long location to a human readable street address
+        Timber.i("getLocation called")
+        if (!checkAndRequestLocationPermissions()) {
+            Timber.i("not granted")
+            Toast.makeText(requireContext(), R.string.error_no_permission, Toast.LENGTH_SHORT)
+                .show()
+            return
+        }
+        Timber.i("start getting location")
+
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener { location: Location? ->
+                Timber.v("LastLocation listener called")
+                location?.let {
+                    Timber.v("got proper location")
+                    val addr = geoCodeLocation(location)
+                    addr?.let {
+                        Timber.v("got proper address")
+                        viewModel.address.value = it
+                    }
+                }
+            }
     }
 
     private fun geoCodeLocation(location: Location): Address? {
