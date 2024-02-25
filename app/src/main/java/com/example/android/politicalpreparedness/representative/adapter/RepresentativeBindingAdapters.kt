@@ -16,6 +16,9 @@ import com.example.android.politicalpreparedness.R
 
 @BindingAdapter("profileImage")
 fun fetchImage(view: ImageView, src: String?) {
+    if (src == null) {
+        view.setImageResource(R.drawable.ic_profile)
+    }
     src?.let {
         val uri = src.toUri().buildUpon().scheme("https").build()
         Glide.with(view.context)
@@ -30,8 +33,14 @@ fun fetchImage(view: ImageView, src: String?) {
 
 @BindingAdapter("showIfTrue")
 fun changeVisibility(view: View, condition: Boolean?) {
-    if (condition == null) return
-    view.visibility = if (condition == true) View.VISIBLE else View.GONE
+    if (condition == null) {
+        return
+    }
+    if (condition) {
+        view.visibility = View.VISIBLE
+    } else {
+        view.visibility = View.INVISIBLE
+    }
 }
 
 @BindingAdapter("stateValue")

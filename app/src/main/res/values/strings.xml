@@ -28,5 +28,6 @@
     <string name="error_no_permission">Please enable location permissions to use this feature</string>
     <string name="permission_title">Location Permission</string>
     <string name="permission_description">Please enable precise location permissions to get your current address</string>
+    <string name="permission_fine_missing">Please enable the precise location as well, course is not enough</string>
 
 </resources>

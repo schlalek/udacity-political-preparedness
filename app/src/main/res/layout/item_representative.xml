@@ -23,13 +23,15 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:profileImage="@{representative.official.photoUrl}"
-            app:srcCompat="@drawable/ic_profile" />
+            tools:srcCompat="@drawable/ic_profile" />
 
         <TextView
             android:id="@+id/text_repre_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/small_margin"
+            android:text="@{representative.office.name}"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
             app:layout_constraintStart_toEndOf="@+id/image_repre_picture"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Former President" />
@@ -39,15 +41,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/small_margin"
+            android:text="@{representative.official.name}"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
             app:layout_constraintStart_toEndOf="@+id/image_repre_picture"
             app:layout_constraintTop_toBottomOf="@+id/text_repre_title"
             tools:text="Donald Trump" />
 
         <TextView
             android:id="@+id/text_repre_party"
+            style="@style/style_text_margins"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/small_margin"
+            android:text="@{representative.official.party}"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
             app:layout_constraintStart_toEndOf="@+id/image_repre_picture"
             app:layout_constraintTop_toBottomOf="@+id/text_repre_name"
             tools:text="Republican Party" />
@@ -57,26 +63,32 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_margin="@dimen/small_margin"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_twitter" />
+            app:srcCompat="@drawable/ic_twitter"
+            tools:visibility="visible" />
 
         <ImageView
             android:id="@+id/image_facebook"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_margin="@dimen/small_margin"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/image_twitter"
-            app:srcCompat="@drawable/ic_facebook" />
+            app:srcCompat="@drawable/ic_facebook"
+            tools:visibility="visible" />
 
         <ImageView
             android:id="@+id/image_web"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_margin="@dimen/small_margin"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/image_facebook"
-            app:srcCompat="@drawable/ic_www" />
+            app:srcCompat="@drawable/ic_www"
+            tools:visibility="visible" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

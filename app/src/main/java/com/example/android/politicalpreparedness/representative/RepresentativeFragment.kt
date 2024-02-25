@@ -51,6 +51,11 @@ class DetailFragment : Fragment() {
 
         binding.recyclerRepresentatives.adapter = respresentativeAdapter
 
+        viewModel.representatives.observe(viewLifecycleOwner)
+        {
+            respresentativeAdapter.submitList(it)
+        }
+
         viewModel.showToast.observe(viewLifecycleOwner)
         {
             it?.let {
@@ -79,10 +84,16 @@ class DetailFragment : Fragment() {
         when {
             permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
                 // Precise location access granted.
+                getLocation()
             }
 
             permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
                 // Only approximate location access granted.
+                Toast.makeText(
+                    requireContext(),
+                    R.string.permission_fine_missing,
+                    Toast.LENGTH_LONG
+                ).show()
             }
 
             else -> {
@@ -153,8 +164,8 @@ class DetailFragment : Fragment() {
         Timber.i("getLocation called")
         if (!checkAndRequestLocationPermissions()) {
             Timber.i("not granted")
-            Toast.makeText(requireContext(), R.string.error_no_permission, Toast.LENGTH_SHORT)
-                .show()
+            /*Toast.makeText(requireContext(), R.string.error_no_permission, Toast.LENGTH_SHORT)
+                .show()*/
             return
         }
         Timber.i("start getting location")

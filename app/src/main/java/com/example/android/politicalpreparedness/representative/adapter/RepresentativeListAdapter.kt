@@ -10,7 +10,6 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.android.politicalpreparedness.R
 import com.example.android.politicalpreparedness.databinding.ItemRepresentativeBinding
 import com.example.android.politicalpreparedness.network.models.Channel
 import com.example.android.politicalpreparedness.representative.model.Representative
@@ -50,12 +49,18 @@ class RepresentativeViewHolder(val binding: ItemRepresentativeBinding) :
 
     fun bind(item: Representative) {
         binding.representative = item
-        binding.imageReprePicture.setImageResource(R.drawable.ic_profile)
 
+        hideLinks()
         item.official.channels?.let { showSocialLinks(it) }
         item.official.urls?.let { showWWWLinks(it) }
 
         binding.executePendingBindings()
+    }
+
+    private fun hideLinks() {
+        binding.imageFacebook.visibility = View.INVISIBLE
+        binding.imageTwitter.visibility = View.INVISIBLE
+        binding.imageWeb.visibility = View.INVISIBLE
     }
 
     private fun showSocialLinks(channels: List<Channel>) {
@@ -97,8 +102,4 @@ class RepresentativeViewHolder(val binding: ItemRepresentativeBinding) :
         itemView.context.startActivity(intent)
     }
 
-}
-
-class RepresentativeListener(val clickListener: (representative: Representative) -> Unit) {
-    fun onClick(representative: Representative) = clickListener(representative)
 }

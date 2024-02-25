@@ -10,6 +10,9 @@
 
     </style>
 
-    <!-- TODO: Add necessary styles -->
+    <style name="style_text_margins">
+        <item name="android:layout_margin">@dimen/small_margin</item>
+        <item name="android:layout_marginBottom">16dp</item>
+    </style>
 
 </resources>
