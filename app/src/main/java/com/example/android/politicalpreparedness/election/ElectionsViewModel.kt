@@ -1,6 +1,9 @@
 package com.example.android.politicalpreparedness.election
 
 import android.app.Application
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -25,7 +28,17 @@ class ElectionsViewModel(application: Application) : AndroidViewModel(applicatio
     val navigateToVoterInfo: LiveData<Election?>
         get() = _navigateToVoterInfo
 
-    suspend fun getUpcomingElections() {
+    fun isConnected(context: Context): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
+        if (activeNetwork != null) {
+            return activeNetwork.isConnectedOrConnecting
+        }
+        return false
+    }
+
+    private suspend fun getUpcomingElections() {
+        if (!isConnected(getApplication<Application>().applicationContext)) return
         val elections = CivicsApi.retrofitService.getElections()
         _upcomingElections.value = elections.elections
     }

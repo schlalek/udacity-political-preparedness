@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.AdapterView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -61,10 +62,21 @@ class DetailFragment : Fragment() {
             it?.let {
                 Toast.makeText(
                     requireContext(),
-                    R.string.error_in_address,
+                    it,
                     Toast.LENGTH_SHORT
                 ).show()
                 viewModel.onToastShown()
+            }
+        }
+
+        binding.state.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?, view: View?, position: Int, id: Long
+            ) {
+                viewModel.setState(requireContext().resources.getStringArray(R.array.states)[position])
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
             }
         }
 
@@ -168,6 +180,12 @@ class DetailFragment : Fragment() {
                 .show()*/
             return
         }
+        if (!viewModel.isConnected(requireContext())) {
+            Toast.makeText(requireContext(), R.string.error_no_connection, Toast.LENGTH_SHORT)
+                .show()
+            return
+        }
+
         Timber.i("start getting location")
 
         fusedLocationClient.lastLocation

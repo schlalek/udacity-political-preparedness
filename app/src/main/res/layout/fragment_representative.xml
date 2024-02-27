@@ -24,7 +24,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/text_search_header"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -42,7 +43,7 @@
             <EditText
                 android:id="@+id/address_line_2"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:autofillHints=""
                 android:hint="@string/hint_address2"
                 android:inputType="textPostalAddress"
@@ -73,7 +74,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/city"
                 app:layout_constraintTop_toTopOf="@id/city"
-                app:stateValue="@={viewModel.address.state}" />
+                app:stateValue="@{viewModel.address.state}" />
 
             <EditText
                 android:id="@+id/zip"

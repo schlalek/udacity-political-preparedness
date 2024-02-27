@@ -1,9 +1,13 @@
 package com.example.android.politicalpreparedness.representative
 
 import android.app.Application
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.android.politicalpreparedness.PoliticalApp
 import com.example.android.politicalpreparedness.R
@@ -13,9 +17,12 @@ import com.example.android.politicalpreparedness.representative.model.Representa
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class RepresentativeViewModel(application: Application) : AndroidViewModel(application) {
+class RepresentativeViewModel(application: Application, savedStateHandle: SavedStateHandle) :
+    AndroidViewModel(application) {
 
-    var address = MutableLiveData<Address>()
+    val initaddr = Address("", "", "", "", "")
+
+    var address: MutableLiveData<Address> = savedStateHandle.getLiveData("address", initaddr)
 
     private val _representatives: MutableLiveData<List<Representative>> = MutableLiveData()
     val representatives: LiveData<List<Representative>>
@@ -36,8 +43,17 @@ class RepresentativeViewModel(application: Application) : AndroidViewModel(appli
     private fun checkIfAddressIsValid(): Boolean {
         if (address.value == null) return false
 
-        return !(address.value!!.line1.isBlank() || address.value!!.line2.isNullOrBlank() || address.value!!.city.isBlank() || address.value!!.zip.isBlank())
+        return !(address.value!!.line1.isBlank() || address.value!!.city.isBlank() || address.value!!.zip.isBlank())
 
+    }
+
+    fun isConnected(context: Context): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
+        if (activeNetwork != null) {
+            return activeNetwork.isConnectedOrConnecting
+        }
+        return false
     }
 
     fun searchRepresentatives() {
@@ -47,6 +63,14 @@ class RepresentativeViewModel(application: Application) : AndroidViewModel(appli
             _showToast.value = getApplication<PoliticalApp>().getString(R.string.error_in_address)
             return
         }
+        if (!isConnected(getApplication<Application>().applicationContext)) {
+            Timber.v("no Network Connectivity")
+            _showToast.value =
+                getApplication<PoliticalApp>().getString(R.string.error_no_connection)
+            return
+        }
+
+
         viewModelScope.launch {
             _showLoading.value = true
             Timber.v("start getting values from API")
@@ -56,6 +80,12 @@ class RepresentativeViewModel(application: Application) : AndroidViewModel(appli
             Timber.v("api call done")
             Timber.v("received representatives: ${_representatives.value!!.size}")
             _showLoading.value = false
+        }
+    }
+
+    fun setState(state: String?) {
+        if (address.value != null) {
+            address.value!!.state = state.orEmpty()
         }
     }
 
