@@ -24,7 +24,8 @@ class RepresentativeViewModel(application: Application, savedStateHandle: SavedS
 
     var address: MutableLiveData<Address> = savedStateHandle.getLiveData("address", initaddr)
 
-    private val _representatives: MutableLiveData<List<Representative>> = MutableLiveData()
+    private val _representatives: MutableLiveData<List<Representative>> =
+        savedStateHandle.getLiveData("representatives")
     val representatives: LiveData<List<Representative>>
         get() = _representatives
 

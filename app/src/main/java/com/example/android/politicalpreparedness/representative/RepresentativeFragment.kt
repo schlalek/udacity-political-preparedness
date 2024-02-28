@@ -27,6 +27,8 @@ import com.google.android.gms.location.LocationServices
 import timber.log.Timber
 import java.util.Locale
 
+const val KEY_MOTIONSTATE = "key_motionState"
+
 class DetailFragment : Fragment() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -87,7 +89,19 @@ class DetailFragment : Fragment() {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
+        if (savedInstanceState != null) {
+            val state = savedInstanceState.getInt(KEY_MOTIONSTATE)
+            binding.layoutMotion.transitionToState(state)
+        }
+
         return binding.root
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.run {
+            putInt(KEY_MOTIONSTATE, binding.layoutMotion.currentState)
+        }
     }
 
     val locationPermissionRequest = registerForActivityResult(
